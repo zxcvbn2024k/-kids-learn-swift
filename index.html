@@ -241,8 +241,8 @@
                 <h3 class="font-bold mb-3 text-zen-gold text-sm uppercase">旅遊規範與禁忌</h3>
                 <ul class="text-xs space-y-2 text-gray-600 list-disc pl-4">
                     <li>禁止攜帶肉類製品 (泡麵含肉體不可)、新鮮蔬果入境日本及返台。</li>
-                    <li>行動電源需隨身攜帶，不可託運。160WH以上禁止帶上機。</li>
-                    <li>手提液體單瓶不得超過 100ml，需放入 1L 透明密封袋。</li>
+                    <li>行動電源需隨身攜帶，不可託運 [cite: 33]。160WH以上禁止帶上機 [cite: 31]。</li>
+                    <li>手提液體單瓶不得超過 100ml，需放入 1L 透明密封袋 [cite: 24, 25]。</li>
                     <li>日本店家大多禁止邊走邊吃，建議在攤位旁或店內食用。</li>
                 </ul>
             </div>
@@ -268,28 +268,6 @@
         </button>
     </nav>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script>
-        // *** 這是您專屬的 Firebase 配置資訊 (來自您的圖片) ***
-        const firebaseConfig = {
-          apiKey: "AIzaSyDe5FfIoneooLLfIo54bhwSvqPuVMJndlJM",
-          authDomain: "japan1223-50ca5.firebaseapp.com",
-          projectId: "japan1223-50ca5",
-          storageBucket: "japan1223-50ca5.appspot.com",
-          messagingSenderId: "161432666966",
-          appId: "1:161432666966:web:cc7616665a36ab0969ccf7"
-        };
-
-        // 初始化 Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // 取得 Firestore 服務的參考
-        const db = firebase.firestore();
-
-        // 定義 Firestore 集合名稱
-        const EXPENSES_COLLECTION = "japan1223_expenses"; 
-    </script>
     <script>
         // --- 核心功能: 分頁切換 ---
         function switchTab(tabId) {
@@ -315,7 +293,7 @@
             } catch (e) { /* 靜默處理計算錯誤 */ }
         }
 
-        // --- 記帳功能 (改用 FIREBASE FIRESTORE 同步) ---
+        // --- 記帳功能 (LocalStorage) ---
         let currentPhoto = "";
         function handleImage(input) {
             const file = input.files[0];
@@ -339,93 +317,56 @@
             reader.readAsDataURL(file);
         }
 
-        // *** 新增/編輯費用 (使用 Firestore) ***
         function addExpense() {
             const name = document.getElementById('item-name').value;
             const amount = document.getElementById('item-amount').value;
-            
             if(!name || !amount) return;
             
-            // 計算 TWD (匯率仍使用本地設定)
-            const rate = parseFloat(document.getElementById('rate-input').value) || 0.21;
-
             const expense = {
+                id: Date.now(),
                 name,
                 amount: parseFloat(amount),
-                photo: currentPhoto, // Base64 編碼的圖片
-                twd: Math.round(amount * rate),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp() // 記錄伺服器時間戳記，用於排序
+                photo: currentPhoto,
+                twd: Math.round(amount * (parseFloat(document.getElementById('rate-input').value) || 0.21))
             };
             
-            // 將資料新增到 Firestore 集合
-            db.collection(EXPENSES_COLLECTION).add(expense)
-                .then(() => {
-                    // 重置表單 (成功寫入後，渲染函數會自動更新列表)
-                    document.getElementById('item-name').value = "";
-                    document.getElementById('item-amount').value = "";
-                    currentPhoto = "";
-                    document.getElementById('preview-container').classList.add('hidden');
-                })
-                .catch((error) => {
-                    console.error("Error writing document: ", error);
-                    alert("資料寫入雲端失敗，請檢查網路。");
-                });
+            let expenses = JSON.parse(localStorage.getItem('trip_expenses') || "[]");
+            expenses.unshift(expense);
+            localStorage.setItem('trip_expenses', JSON.stringify(expenses));
+            
+            // 重置
+            document.getElementById('item-name').value = "";
+            document.getElementById('item-amount').value = "";
+            currentPhoto = "";
+            document.getElementById('preview-container').classList.add('hidden');
+            renderExpenses();
         }
 
-        // *** 渲染費用與即時監聽 (使用 Firestore) ***
         function renderExpenses() {
+            const expenses = JSON.parse(localStorage.getItem('trip_expenses') || "[]");
             const container = document.getElementById('expense-list');
-            
-            // 監聽 Firestore 集合的變動，並按時間戳記降序排列
-            db.collection(EXPENSES_COLLECTION)
-              .orderBy("timestamp", "desc") // 讓最新的在最上面
-              .onSnapshot((snapshot) => {
-                let expenses = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (data.amount !== undefined) {
-                         expenses.push({
-                            id: doc.id, // Firestore 文件 ID
-                            ...data
-                        });
-                    }
-                });
-                
-                // 使用取得的數據來渲染 HTML
-                container.innerHTML = expenses.map(ex => `
-                    <div class="zen-card p-3 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            ${ex.photo ? `<img src="${ex.photo}" class="w-10 h-10 rounded object-cover shadow-sm">` : `<div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">無圖</div>`}
-                            <div>
-                                <p class="text-sm font-bold">${ex.name}</p>
-                                <p class="text-[10px] text-gray-400">¥${ex.amount ? ex.amount.toLocaleString() : '0'} → NT$${ex.twd ? ex.twd.toLocaleString() : '0'}</p>
-                            </div>
+            container.innerHTML = expenses.map(ex => `
+                <div class="zen-card p-3 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        ${ex.photo ? `<img src="${ex.photo}" class="w-10 h-10 rounded object-cover shadow-sm">` : `<div class="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">無圖</div>`}
+                        <div>
+                            <p class="text-sm font-bold">${ex.name}</p>
+                            <p class="text-[10px] text-gray-400">¥${ex.amount.toLocaleString()} → NT$${ex.twd.toLocaleString()}</p>
                         </div>
-                        <button onclick="deleteExpense('${ex.id}')" class="text-gray-300 hover:text-red-400 p-2"><i class="fas fa-trash-alt text-xs"></i></button>
                     </div>
-                `).join('');
-            }, (error) => {
-                console.error("Error listening to Firestore: ", error);
-                container.innerHTML = `<p class="text-red-500 text-center">載入資料失敗，請確認網路連線和 Firebase 設定。</p>`;
-            });
+                    <button onclick="deleteExpense(${ex.id})" class="text-gray-300 hover:text-red-400 p-2"><i class="fas fa-trash-alt text-xs"></i></button>
+                </div>
+            `).join('');
         }
 
-        // *** 刪除費用 (使用 Firestore) ***
-        function deleteExpense(docId) {
-            if(!confirm("確定要刪除這筆開銷嗎？")) return;
-            
-            db.collection(EXPENSES_COLLECTION).doc(docId).delete()
-                .then(() => {
-                    console.log("Document successfully deleted!");
-                    // 列表會自動更新
-                })
-                .catch((error) => {
-                    console.error("Error removing document: ", error);
-                    alert("刪除失敗。");
-                });
+        function deleteExpense(id) {
+            let expenses = JSON.parse(localStorage.getItem('trip_expenses') || "[]");
+            expenses = expenses.filter(e => e.id !== id);
+            localStorage.setItem('trip_expenses', JSON.stringify(expenses));
+            renderExpenses();
         }
 
-        // --- 清單與備忘錄 (保留 LocalStorage) ---
+        // --- 清單與備忘錄 ---
         const initialChecklist = [
             "護照 (正本+影本)", "日幣現金 / 信用卡", "機票行程表", "日本上網卡 (Esim)", "行動電源 (隨身)", "相機 / 充電器", "止瀉藥 / 感冒藥", "摺疊雨傘", "牙刷牙膏", "暖暖包 / 手套 / 圍巾"
         ];
@@ -479,8 +420,8 @@
 
         // --- 初始化頁面 ---
         window.onload = () => {
-            renderExpenses(); // 從 Firebase 載入
-            initChecklist(); // 從 LocalStorage 載入
+            renderExpenses();
+            initChecklist();
             const savedMemo = localStorage.getItem('trip_memo') || "";
             memoInput.value = savedMemo;
             updateMemoLinks(savedMemo);
