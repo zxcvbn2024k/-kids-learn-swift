@@ -82,6 +82,13 @@
         .checkbox-wrapper input:checked + div svg {
             display: block;
         }
+        /* Image Preview Style */
+        .souvenir-img {
+            object-fit: cover;
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen relative font-sans">
@@ -116,6 +123,10 @@
                 <i class="fa-solid fa-calculator text-xl mb-1"></i>
                 <span class="text-[10px] font-bold">錢包</span>
             </button>
+            <button onclick="switchTab('souvenir')" class="nav-btn w-full h-full flex flex-col justify-center items-center text-zen-sub hover:text-zen-primary transition-colors" data-tab="souvenir">
+                <i class="fa-solid fa-gift text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">伴手禮</span>
+            </button>
             <button onclick="switchTab('lists')" class="nav-btn w-full h-full flex flex-col justify-center items-center text-zen-sub hover:text-zen-primary transition-colors" data-tab="lists">
                 <i class="fa-solid fa-clipboard-check text-xl mb-1"></i>
                 <span class="text-[10px] font-bold">清單</span>
@@ -134,7 +145,7 @@
                 day: "Day 1",
                 date: "12/23 (二)",
                 loc: "金澤",
-                weather: "snow", // simplified
+                weather: "snow",
                 temp: "1°C / 6°C",
                 hotel: "東急富山卓越飯店",
                 hotelLink: "https://maps.app.goo.gl/offW9bzxexSuhnRr5",
@@ -144,7 +155,7 @@
                     { 
                         title: "金澤兼六園 & 金澤城", 
                         desc: "兼六園、金澤城、尾山神社、宇多須神社、金澤神社",
-                        link: "https://goo.gl/maps/example" // Placeholder if no specific link
+                        link: "https://goo.gl/maps/example" 
                     },
                     { 
                         title: "東茶屋街", 
@@ -312,6 +323,9 @@
         let exchangeRate = localStorage.getItem('travel_rate') || 0.22;
         let userLists = JSON.parse(localStorage.getItem('travel_custom_lists')) || defaultLists;
         let meetingTimes = JSON.parse(localStorage.getItem('travel_times')) || {};
+        // NEW STATE FOR SOUVENIR
+        let souvenirs = JSON.parse(localStorage.getItem('travel_souvenirs')) || [];
+        let tempSouvenirImage = null; // Store temp base64 before adding
 
         // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -347,6 +361,7 @@
             else if (currentTab === 'wallet') renderWallet(app);
             else if (currentTab === 'lists') renderLists(app);
             else if (currentTab === 'info') renderInfo(app);
+            else if (currentTab === 'souvenir') renderSouvenir(app); // NEW VIEW
         }
 
         // --- RENDERERS ---
@@ -357,7 +372,6 @@
             
             itinerary.forEach((day, index) => {
                 const dayId = `day-${index}`;
-                // Weather icon mapping
                 let weatherIcon = 'fa-sun';
                 if(day.weather.includes('snow')) weatherIcon = 'fa-snowflake';
                 if(day.weather.includes('cloud')) weatherIcon = 'fa-cloud';
@@ -444,7 +458,7 @@
                     `;
                 }
 
-                html += `</div></div>`; // End Card
+                html += `</div></div>`; 
             });
 
             html += '</div>';
@@ -656,6 +670,79 @@
             container.innerHTML = html;
         }
 
+        // 5. SOUVENIR (NEW FEATURE)
+        function renderSouvenir(container) {
+            tempSouvenirImage = null; // Reset temp image
+            const total = souvenirs.length;
+            const checked = souvenirs.filter(s => s.checked).length;
+            const progress = total === 0 ? 0 : Math.round((checked / total) * 100);
+
+            let html = `
+                <div class="space-y-6 pb-20">
+                    
+                    <div class="bg-zen-card p-5 rounded-2xl shadow-sm border border-zen-border">
+                        <h3 class="text-zen-text font-bold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-gift text-sakura-main"></i> 新增伴手禮
+                        </h3>
+                        <div class="space-y-3">
+                            <input type="text" id="souvenirName" placeholder="伴手禮名稱 (如: 富士山餅乾)" class="input-zen w-full">
+                            <input type="text" id="souvenirShop" placeholder="店名/地點 (如: 車站2F)" class="input-zen w-full">
+                            
+                            <div class="flex items-center gap-2">
+                                <label class="flex-1 bg-zen-bg border border-dashed border-zen-primary text-zen-primary rounded-xl py-3 text-center cursor-pointer hover:bg-zen-primary hover:text-white transition-colors">
+                                    <i class="fa-solid fa-camera mr-2"></i> 拍照 / 上傳圖片
+                                    <input type="file" id="souvenirImgInput" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+                                </label>
+                            </div>
+                            <div id="imagePreviewContainer" class="hidden">
+                                <img id="imagePreview" src="" class="w-full h-32 object-cover rounded-xl border border-zen-border">
+                            </div>
+
+                            <button onclick="addSouvenir()" class="btn-zen w-full shadow-lg shadow-orange-100">加入清單</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-zen-card rounded-2xl shadow-sm border border-zen-border overflow-hidden">
+                        <div class="bg-zen-100 p-4 border-b border-zen-border flex justify-between items-center">
+                            <span class="font-bold text-zen-text">購買清單</span>
+                            <span class="text-xs font-bold text-zen-primary bg-white px-2 py-1 rounded-full border border-zen-border">
+                                完成度 ${progress}%
+                            </span>
+                        </div>
+                        
+                        <div class="space-y-0">
+                            ${souvenirs.length === 0 ? '<div class="p-8 text-center text-zen-sub text-sm">還沒有要買的東西嗎？</div>' : ''}
+                            ${souvenirs.map(item => `
+                                <div class="p-4 border-b border-zen-bg last:border-0 flex gap-4 items-start bg-white transition-colors ${item.checked ? 'bg-gray-50' : ''}">
+                                    <div class="checkbox-wrapper mt-1">
+                                        <label class="cursor-pointer relative">
+                                            <input type="checkbox" class="hidden" onchange="toggleSouvenir('${item.id}')" ${item.checked ? 'checked' : ''}>
+                                            <div class="w-6 h-6 border-2 border-zen-border rounded-md flex items-center justify-center bg-white">
+                                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-zen-text ${item.checked ? 'line-through text-zen-sub opacity-50' : ''}">${item.name}</h4>
+                                        <div class="text-xs text-zen-sub flex items-center gap-1 mt-1">
+                                            <i class="fa-solid fa-store text-sakura-main"></i> ${item.shop || '未指定地點'}
+                                        </div>
+                                        ${item.image ? `<img src="${item.image}" class="mt-2 w-24 h-24 object-cover rounded-lg border border-zen-border shadow-sm">` : ''}
+                                    </div>
+
+                                    <button onclick="deleteSouvenir('${item.id}')" class="text-gray-200 hover:text-red-400 p-2">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
         // --- Logic Handlers ---
 
         function saveTime(key, value) {
@@ -666,7 +753,7 @@
         function saveRate(val) {
             exchangeRate = parseFloat(val);
             localStorage.setItem('travel_rate', exchangeRate);
-            renderView(); // Re-render to update calculations
+            renderView();
         }
 
         function calculate() {
@@ -675,9 +762,6 @@
             const twdDisplay = document.getElementById('calcResultTwd');
             
             try {
-                // Security Note: eval is used here for a client-side calculator. 
-                // Since there's no backend/sensitive data, it's acceptable for this use case.
-                // Restrict to basic math characters.
                 if(/^[0-9+\-*/().\s]*$/.test(input)) {
                     const result = eval(input);
                     yenDisplay.innerText = Math.round(result).toLocaleString();
@@ -734,6 +818,97 @@
             if(confirm(`確定刪除「${item}」嗎？`)) {
                 userLists[listKey] = userLists[listKey].filter(i => i !== item);
                 localStorage.setItem('travel_custom_lists', JSON.stringify(userLists));
+                renderView();
+            }
+        }
+
+        // --- NEW HANDLERS FOR SOUVENIR ---
+
+        // Handle Image Compression and Preview
+        function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Canvas Compression Logic
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Resize to max width 300px to save space
+                        const maxWidth = 300;
+                        const scale = maxWidth / img.width;
+                        const width = maxWidth;
+                        const height = img.height * scale;
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        // Draw and Compress
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert to Base64 (JPEG, Quality 0.6)
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                        
+                        // Show Preview
+                        const preview = document.getElementById('imagePreview');
+                        const container = document.getElementById('imagePreviewContainer');
+                        preview.src = dataUrl;
+                        container.classList.remove('hidden');
+                        
+                        // Save to temp state
+                        tempSouvenirImage = dataUrl;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addSouvenir() {
+            const name = document.getElementById('souvenirName').value;
+            const shop = document.getElementById('souvenirShop').value;
+
+            if (!name) {
+                alert('請輸入伴手禮名稱');
+                return;
+            }
+
+            try {
+                souvenirs.push({
+                    id: Date.now().toString(),
+                    name: name,
+                    shop: shop,
+                    image: tempSouvenirImage, // Saves Base64 string
+                    checked: false
+                });
+                
+                localStorage.setItem('travel_souvenirs', JSON.stringify(souvenirs));
+                renderView();
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    alert('儲存空間已滿！建議刪除一些舊的伴手禮照片。');
+                } else {
+                    alert('發生錯誤，無法儲存。');
+                }
+            }
+        }
+
+        function toggleSouvenir(id) {
+            const item = souvenirs.find(s => s.id === id);
+            if(item) {
+                item.checked = !item.checked;
+                localStorage.setItem('travel_souvenirs', JSON.stringify(souvenirs));
+                renderView();
+            }
+        }
+
+        function deleteSouvenir(id) {
+            if(confirm('確定刪除這個伴手禮嗎？')) {
+                souvenirs = souvenirs.filter(s => s.id !== id);
+                localStorage.setItem('travel_souvenirs', JSON.stringify(souvenirs));
                 renderView();
             }
         }
