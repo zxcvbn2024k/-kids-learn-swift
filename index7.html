@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>日本北陸冬之旅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zen: {
+                            bg: '#fdfbf7',     /* 米白背景 */
+                            card: '#ffffff',   /* 純白卡片 */
+                            text: '#595046',   /* 深灰棕文字 */
+                            sub: '#968c83',    /* 淺灰文字 */
+                            primary: '#d4a373',/* 奶茶色主色 */
+                            accent: '#e6ccb2', /* 淺奶茶 */
+                            border: '#ede0d4', /* 邊框色 */
+                        },
+                        sakura: {
+                            light: '#ffe5e9',
+                            main: '#ffb7b2',
+                            dark: '#ff8fab',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Zen Maru Gothic"', '"Noto Sans TC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fdfbf7;
+            color: #595046;
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        /* Hide scrollbar for clean look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .input-zen {
+            background: #fdfbf7;
+            border: 1px solid #ede0d4;
+            border-radius: 12px;
+            padding: 8px 12px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .input-zen:focus {
+            border-color: #d4a373;
+            box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+        }
+        .btn-zen {
+            background-color: #d4a373;
+            color: white;
+            border-radius: 12px;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+            transition: transform 0.1s;
+        }
+        .btn-zen:active {
+            transform: scale(0.98);
+        }
+        /* Checkbox styling */
+        .checkbox-wrapper input:checked + div {
+            background-color: #d4a373;
+            border-color: #d4a373;
+        }
+        .checkbox-wrapper input:checked + div svg {
+            display: block;
+        }
+        /* Image Preview Style */
+        .souvenir-img {
+            object-fit: cover;
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen relative font-sans">
+
+    <header class="fixed top-0 w-full z-50 bg-[#fdfbf7]/90 backdrop-blur-md border-b border-zen-border shadow-sm">
+        <div class="flex justify-between items-center px-4 py-3">
+            <div class="flex items-center gap-2">
+                <div class="text-sakura-main text-2xl">
+                    <i class="fa-solid fa-piggy-bank"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-zen-text tracking-widest">北陸冬之旅</h1>
+                    <p class="text-xs text-zen-sub">12/23 - 12/27</p>
+                </div>
+            </div>
+            <div class="text-sakura-main animate-pulse">
+                <i class="fa-solid fa-fan fa-spin-pulse" style="animation-duration: 3s;"></i>
+            </div>
+        </div>
+    </header>
+
+    <main id="app" class="pt-20 px-4">
+        </main>
+
+    <nav class="fixed bottom-0 w-full bg-white border-t border-zen-border z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] pb-safe">
+        <div class="flex justify-around items-center h-16">
+            <button onclick="switchTab('plan')" class="nav-btn w-full h-full flex flex-col justify-center items-center text-zen-sub hover:text-zen-primary transition-colors" data-tab="plan">
+                <i class="fa-solid fa-map-location-dot text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">行程</span>
+            </button>
+            <button onclick="switchTab('wallet')" class="nav-btn w-full h-full flex flex-col justify-center items-center text-zen-sub hover:text-zen-primary transition-colors" data-tab="wallet">
+                <i class="fa-solid fa-calculator text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">錢包</span>
+            </button>
+            <button onclick="switchTab('souvenir')" class="nav-btn w-full h-full flex flex-col justify-center items-center text-zen-sub hover:text-zen-primary transition-colors" data-tab="souvenir">
+                <i class="fa-solid fa-gift text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">伴手禮</span>
+            </button>
+            <button onclick="switchTab('lists')" class="nav-btn w-full h-full flex flex-col justify-center items-center text-zen-sub hover:text-zen-primary transition-colors" data-tab="lists">
+                <i class="fa-solid fa-clipboard-check text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">清單</span>
+            </button>
+            <button onclick="switchTab('info')" class="nav-btn w-full h-full flex flex-col justify-center items-center text-zen-sub hover:text-zen-primary transition-colors" data-tab="info">
+                <i class="fa-solid fa-circle-info text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">資訊</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        // --- Data ---
+        const itinerary = [
+            {
+                day: "Day 1",
+                date: "12/23 (二)",
+                loc: "金澤",
+                weather: "snow",
+                temp: "1°C / 6°C",
+                hotel: "東急富山卓越飯店",
+                hotelLink: "https://maps.app.goo.gl/offW9bzxexSuhnRr5",
+                spots: [
+                    { time: "06:35", title: "桃園起飛 (BR158)", icon: "plane" },
+                    { time: "10:25", title: "抵達小松機場", icon: "plane-arrival" },
+                    { 
+                        title: "金澤兼六園 & 金澤城", 
+                        desc: "兼六園、金澤城、尾山神社、宇多須神社、金澤神社",
+                        link: "https://goo.gl/maps/example" 
+                    },
+                    { 
+                        title: "東茶屋街", 
+                        desc: "懷舊老街、金箔體驗",
+                        link: "https://chayagai.goldleaf-sakuda.jp/shop_cat/cat-souvenir/",
+                        highlights: ["YAMATO醬油味噌", "柴舟小出(生薑餅乾)", "箔一(金箔冰淇淋)", "飴之俵屋(麥芽糖)", "VILLE DE CROQUETTE(可樂餅)", "金魚庵/YANAGI庵"]
+                    },
+                    { 
+                        title: "金澤香林坊 (晚餐/購物)", 
+                        desc: "百貨商圈，自行覓食",
+                        link: "https://maps.app.goo.gl/w1xGoVTZpeciRWyw6",
+                        highlights: ["香林坊大和(B1伴手禮/8F餐廳)", "茶寮不室屋(麥麩)", "四十萬谷本舖(醃漬物)", "森八/烏雞庵(蜂蜜蛋糕)"]
+                    },
+                    {
+                        title: "晚餐推薦",
+                        desc: "香林坊或飯店附近",
+                        isFood: true,
+                        items: ["CHIKUWA (關東煮)", "Ippukuya (關東煮)", "鮨KURA竹 (壽司)", "Turban 咖哩", "HIRA井 (海鮮丼)", "更科藤井 (蕎麥麵)"]
+                    },
+                    { title: "前往富山市區 & 住宿", time: "晚間" }
+                ]
+            },
+            {
+                day: "Day 2",
+                date: "12/24 (三)",
+                loc: "白川鄉 / 高山",
+                weather: "snow",
+                temp: "-2°C / 3°C",
+                hotel: "高山寶生閣",
+                hotelLink: "https://maps.app.goo.gl/4yrt2qhhdEaWHUAt6",
+                spots: [
+                    { title: "庄川峽遊船", icon: "ship" },
+                    { 
+                        title: "白川鄉合掌村", 
+                        desc: "童話世界",
+                        highlights: ["白川鄉布丁的家", "白川八幡神社"]
+                    },
+                    { 
+                        title: "高山三之町古街", 
+                        desc: "飛驒小京都，邊走邊吃",
+                        link: "https://www.centrair.jp/resource/multi/travel/centrair_takayama/tch/highlights/",
+                        isFood: true,
+                        items: ["飛驒牛壽司 (飛驒 特牛)", "味噌烤飯糰", "五平餅", "飛驒蕎麥麵 小舟", "飛驒牛包子", "高山布丁亭 (雪國布丁)", "船坂/原田酒造場 (清酒)"]
+                    }
+                ]
+            },
+            {
+                day: "Day 3",
+                date: "12/25 (四)",
+                loc: "名古屋",
+                weather: "cloud",
+                temp: "2°C / 9°C",
+                hotel: "KURETAKE-INN 名古屋久屋大通",
+                hotelLink: "https://maps.app.goo.gl/vEPJ3yVpYwsrCwkj8",
+                spots: [
+                    { title: "新穗高纜車", icon: "mountain" },
+                    { 
+                        title: "名古屋車站商圈", 
+                        desc: "購物與美食",
+                        highlights: ["無印良品 (睡眠噴霧)", "麵家獅子丸", "伴手禮: 手羽先、蝦餅"]
+                    },
+                    {
+                        title: "午/晚餐推薦 (鰻魚飯)",
+                        desc: "預算 3000-5000円",
+                        isFood: true,
+                        items: ["備長 (ESCA店)", "丸屋本店 (名鐵百貨B1)", "蓬萊軒 (松坂屋)", "炭燒富士鰻魚", "HITSUMABUSHI 花岡"]
+                    },
+                    { 
+                        title: "名花之里", 
+                        desc: "主題公園、燈海、花園(門票1000円)",
+                        link: "https://www.nagashima-onsen.co.jp/nabana/illumination/main.html",
+                        highlights: ["蜂蜜起司餅乾", "市集/餐廳"]
+                    },
+                    { 
+                        title: "電視塔 / 榮町商圈", 
+                        desc: "綠洲21、中日大廈",
+                        highlights: ["橡子共和國", "哈利波特", "唐吉軻德 (24H)", "客美多咖啡", "駿河屋"]
+                    }
+                ]
+            },
+            {
+                day: "Day 4",
+                date: "12/26 (五)",
+                loc: "名古屋 / 北陸",
+                weather: "cloud-sun",
+                temp: "3°C / 8°C",
+                hotel: "大江戶溫泉 山中彩朝樂",
+                hotelLink: "https://maps.app.goo.gl/2iP1SvcbiRJYb5cRA",
+                spots: [
+                    { 
+                        title: "熱田神宮", 
+                        desc: "草薙館、寶物館",
+                        link: "https://bjsmile.tw/atsuta-jingu/",
+                        isFood: true,
+                        items: ["宮棊子麵", "車樂 (銅鑼燒)"]
+                    },
+                    { title: "日本精品免稅店", desc: "美妝、保健、3C" },
+                    { title: "牧歌之里", desc: "玩雪、動物 (牛, 兔, 羊駝)" },
+                    { 
+                        title: "新小松永旺購物中心 (AEON)", 
+                        desc: "最後衝刺",
+                        highlights: ["3COINS (2F)", "九世福 (1F 必買高湯包/果乾)", "九谷燒 (五彩柱)", "AEON STYLE超市"]
+                    }
+                ]
+            },
+            {
+                day: "Day 5",
+                date: "12/27 (六)",
+                loc: "返家",
+                weather: "sun",
+                temp: "10°C",
+                hotel: "溫暖的家",
+                spots: [
+                    { time: "11:45", title: "小松機場起飛 (BR157)", icon: "plane-departure" },
+                    { time: "14:35", title: "抵達台北", icon: "house" }
+                ]
+            }
+        ];
+
+        const defaultLists = {
+            carryOn: [
+                "護照", "護照影本", "身分證", "信用卡", "外幣", "旅遊保險單", "eSim", 
+                "感冒藥", "止瀉藥", "暈車藥", "OK繃", "眼藥水", "保健食品", "胃藥", 
+                "耳機", "手機充電器", "行動電源", "墨鏡", "筆", "摺疊雨傘", 
+                "100ml內酒精", "口罩", "帽子", "水壺", "面紙、濕紙巾", "錢包", "鑰匙", "購物袋"
+            ],
+            suitcase: [
+                "牙刷牙膏", "洗面乳", "保養品", "防曬", "隱形眼鏡", "眼鏡盒", 
+                "刮鬍刀", "梳子", "鯊魚夾", "充電器", "衣服褲子*2套", "襪子", 
+                "外套", "內衣褲", "發熱衣", "暖暖包", "髮圈", "真空壓縮袋", "眼罩"
+            ]
+        };
+
+        const infoData = {
+            flightOut: { date: "12/23 (二)", code: "BR158", route: "TPE ➝ KMQ", time: "06:35 - 10:25" },
+            flightIn: { date: "12/27 (六)", code: "BR157", route: "KMQ ➝ TPE", time: "11:45 - 14:35" },
+            contacts: [
+                { name: "領隊 黃香郡 (國內)", tel: "0987912333" },
+                { name: "領隊 黃香郡 (國外)", tel: "080-7734-8299" },
+                { name: "外交部旅外救助", tel: "+886-800-085-095" },
+                { name: "日本緊急電話", tel: "警察110 / 救護119" }
+            ],
+            notices: [
+                "目前東北氣溫約-4~5度，建議洋蔥式穿搭。",
+                "鋰電池、行動電源務必手提，不可託運。",
+                "打火機限一顆(非防風)隨身。",
+                "自拍棒、腳架、尖銳物請託運。",
+                "日本電壓100V，插座與台灣相同。",
+                "嚴禁帶肉類、生鮮蔬果出入境。",
+                "電子菸嚴禁攜帶。",
+                "酒類入境台灣限1.5公升。",
+                "牙膏牙刷建議自備。",
+                "超過100ml液體請託運。",
+                "個人慣用藥品請自行攜帶。",
+                "託運23kg + 手提7kg。",
+                "隨時檢查護照是否帶了。",
+                "小費每人每天300元台幣。"
+            ]
+        };
+
+        // --- State Management ---
+        let currentTab = 'plan';
+        let expenses = JSON.parse(localStorage.getItem('travel_expenses')) || [];
+        let checklistState = JSON.parse(localStorage.getItem('travel_checklist')) || {};
+        let exchangeRate = localStorage.getItem('travel_rate') || 0.22;
+        let userLists = JSON.parse(localStorage.getItem('travel_custom_lists')) || defaultLists;
+        let meetingTimes = JSON.parse(localStorage.getItem('travel_times')) || {};
+        // NEW STATE FOR SOUVENIR
+        let souvenirs = JSON.parse(localStorage.getItem('travel_souvenirs')) || [];
+        let tempSouvenirImage = null; // Store temp base64 before adding
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderView();
+            updateNav();
+        });
+
+        // --- Functions ---
+        function switchTab(tab) {
+            currentTab = tab;
+            renderView();
+            updateNav();
+            window.scrollTo(0, 0);
+        }
+
+        function updateNav() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.tab === currentTab) {
+                    btn.classList.add('text-zen-primary');
+                    btn.classList.remove('text-zen-sub');
+                } else {
+                    btn.classList.remove('text-zen-primary');
+                    btn.classList.add('text-zen-sub');
+                }
+            });
+        }
+
+        function renderView() {
+            const app = document.getElementById('app');
+            app.innerHTML = '';
+
+            if (currentTab === 'plan') renderPlan(app);
+            else if (currentTab === 'wallet') renderWallet(app);
+            else if (currentTab === 'lists') renderLists(app);
+            else if (currentTab === 'info') renderInfo(app);
+            else if (currentTab === 'souvenir') renderSouvenir(app); // NEW VIEW
+        }
+
+        // --- RENDERERS ---
+
+        // 1. PLAN
+        function renderPlan(container) {
+            let html = '<div class="space-y-6 pb-6">';
+            
+            itinerary.forEach((day, index) => {
+                const dayId = `day-${index}`;
+                let weatherIcon = 'fa-sun';
+                if(day.weather.includes('snow')) weatherIcon = 'fa-snowflake';
+                if(day.weather.includes('cloud')) weatherIcon = 'fa-cloud';
+                
+                html += `
+                <div class="bg-zen-card rounded-2xl shadow-sm border border-zen-border overflow-hidden">
+                    <div class="bg-zen-100 p-4 border-b border-zen-border flex justify-between items-center bg-opacity-50">
+                        <div>
+                            <h2 class="text-xl font-bold text-zen-text">${day.day} <span class="text-sm font-normal text-zen-sub ml-1">${day.date}</span></h2>
+                            <div class="text-sm text-zen-primary flex items-center gap-2 mt-1">
+                                <i class="fa-solid fa-location-dot"></i> ${day.loc}
+                            </div>
+                        </div>
+                        <div class="text-center bg-white px-3 py-1 rounded-lg shadow-sm">
+                            <i class="fa-solid ${weatherIcon} text-sakura-main text-xl"></i>
+                            <div class="text-xs text-zen-sub font-bold">${day.temp}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 space-y-4">
+                `;
+
+                day.spots.forEach((spot, sIndex) => {
+                    const timeKey = `${dayId}-spot-${sIndex}`;
+                    const savedTime = meetingTimes[timeKey] || spot.time || "";
+                    
+                    html += `
+                        <div class="relative pl-4 border-l-2 border-sakura-light pb-2 last:pb-0">
+                            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-sakura-light border-2 border-white"></div>
+                            
+                            <div class="mb-1 flex items-center justify-between">
+                                <h3 class="font-bold text-lg text-zen-text">${spot.title}</h3>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-zen-primary text-white text-[10px] px-2 py-0.5 rounded-full">集合/時間</span>
+                                <input type="text" value="${savedTime}" 
+                                    class="text-sm font-bold text-zen-primary bg-transparent border-b border-dashed border-zen-primary focus:outline-none w-24"
+                                    placeholder="設定時間"
+                                    onchange="saveTime('${timeKey}', this.value)">
+                            </div>
+
+                            ${spot.desc ? `<p class="text-sm text-zen-sub mb-2 leading-relaxed">${spot.desc}</p>` : ''}
+                            
+                            ${spot.highlights ? `
+                                <div class="bg-[#faf9f6] p-3 rounded-lg border border-[#f0ebe5] mb-2">
+                                    <div class="text-xs text-sakura-main font-bold mb-1"><i class="fa-solid fa-gift"></i> 必買/必逛</div>
+                                    <div class="flex flex-wrap gap-1">
+                                        ${spot.highlights.map(h => `<span class="text-xs bg-white px-2 py-1 rounded border border-zen-border text-zen-text">${h}</span>`).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${spot.isFood ? `
+                                <div class="bg-[#fff5f6] p-3 rounded-lg border border-sakura-light mb-2">
+                                    <div class="text-xs text-sakura-dark font-bold mb-1"><i class="fa-solid fa-utensils"></i> 美食推薦</div>
+                                    <ul class="list-disc list-inside text-xs text-zen-text space-y-1">
+                                        ${spot.items.map(i => `<li>${i}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+
+                            ${spot.link ? `
+                                <a href="${spot.link}" target="_blank" class="inline-block mt-1 text-xs bg-white border border-zen-border text-zen-sub px-3 py-1 rounded-full shadow-sm active:scale-95 transition-transform">
+                                    <i class="fa-solid fa-map"></i> 查看介紹/地圖
+                                </a>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                if(day.hotel) {
+                    html += `
+                        <div class="mt-4 pt-4 border-t border-dashed border-zen-border">
+                            <div class="flex items-start gap-3">
+                                <div class="text-sakura-main text-xl"><i class="fa-solid fa-bed"></i></div>
+                                <div>
+                                    <div class="text-xs text-zen-sub">住宿</div>
+                                    <div class="font-bold text-zen-text">${day.hotel}</div>
+                                    <a href="${day.hotelLink}" target="_blank" class="text-xs text-zen-primary underline mt-1 block">導航去飯店</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `</div></div>`; 
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // 2. WALLET
+        function renderWallet(container) {
+            const totalYen = expenses.reduce((sum, item) => sum + item.amount, 0);
+            const totalTwd = Math.round(totalYen * exchangeRate);
+
+            let html = `
+                <div class="space-y-6">
+                    <div class="bg-zen-card p-5 rounded-2xl shadow-sm border border-zen-border relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-9xl text-zen-bg opacity-50 z-0">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <h3 class="text-zen-sub text-sm mb-2 font-bold">匯率計算機 (¥ → NT$)</h3>
+                            <div class="flex gap-2 mb-4">
+                                <div class="flex-1">
+                                    <label class="text-[10px] text-zen-sub block mb-1">匯率</label>
+                                    <input type="number" step="0.001" id="rateInput" value="${exchangeRate}" onchange="saveRate(this.value)" class="input-zen w-full">
+                                </div>
+                            </div>
+                            
+                            <div class="bg-zen-bg p-3 rounded-xl border border-zen-border mb-3">
+                                <label class="text-[10px] text-zen-sub block mb-1">輸入日幣算式 (例: 500+200*3)</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="calcInput" placeholder="輸入金額..." class="bg-transparent text-lg font-bold text-zen-text w-full outline-none" onkeyup="if(event.key === 'Enter') calculate()">
+                                    <button onclick="calculate()" class="text-zen-primary"><i class="fa-solid fa-equals"></i></button>
+                                </div>
+                                <div class="h-px bg-zen-border my-2"></div>
+                                <div class="flex justify-between items-end">
+                                    <div class="text-2xl font-bold text-zen-text">¥ <span id="calcResultYen">0</span></div>
+                                    <div class="text-lg font-bold text-zen-primary">NT$ <span id="calcResultTwd">0</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-zen-card p-5 rounded-2xl shadow-sm border border-zen-border">
+                        <h3 class="text-zen-text font-bold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-sakura-main"></i> 快速記帳
+                        </h3>
+                        <div class="flex gap-2 mb-3">
+                            <input type="text" id="expenseName" placeholder="品項 (例: 章魚燒)" class="input-zen flex-[2]">
+                            <input type="number" id="expenseAmount" placeholder="¥ 金額" class="input-zen flex-[1]">
+                        </div>
+                        <button onclick="addExpense()" class="btn-zen w-full shadow-lg shadow-orange-100">新增這筆消費</button>
+                    </div>
+
+                    <div class="bg-zen-card rounded-2xl shadow-sm border border-zen-border overflow-hidden">
+                         <div class="bg-zen-100 p-3 border-b border-zen-border flex justify-between items-center">
+                            <span class="font-bold text-zen-text">消費紀錄</span>
+                            <div class="text-right">
+                                <div class="text-xs text-zen-sub">總計</div>
+                                <span class="text-sm font-bold text-zen-primary">¥${totalYen.toLocaleString()}</span>
+                                <span class="text-[10px] text-zen-sub">(約 NT$${totalTwd.toLocaleString()})</span>
+                            </div>
+                        </div>
+                        <div class="max-h-64 overflow-y-auto no-scrollbar">
+                            ${expenses.length === 0 ? '<div class="p-8 text-center text-zen-sub text-sm">還沒有花錢喔～</div>' : ''}
+                            ${expenses.map((ex, i) => `
+                                <div class="flex justify-between items-center p-3 border-b border-zen-bg last:border-0">
+                                    <div>
+                                        <div class="text-sm font-bold text-zen-text">${ex.name}</div>
+                                        <div class="text-[10px] text-zen-sub">${ex.date}</div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-right">
+                                            <div class="text-sm font-bold text-zen-text">¥${ex.amount}</div>
+                                            <div class="text-[10px] text-zen-sub">NT$${Math.round(ex.amount * exchangeRate)}</div>
+                                        </div>
+                                        <button onclick="removeExpense(${i})" class="text-gray-300 hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            `).reverse().join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // 3. LISTS
+        function renderLists(container) {
+            let html = `
+                <div class="space-y-6 pb-20">
+                    ${renderChecklistSection('隨身行李 (Carry-on)', 'carryOn', 'fa-suitcase')}
+                    ${renderChecklistSection('託運行李 (Suitcase)', 'suitcase', 'fa-cart-flatbed-suitcase')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function renderChecklistSection(title, listKey, icon) {
+            const list = userLists[listKey];
+            const total = list.length;
+            const checkedCount = list.filter(item => checklistState[`${listKey}-${item}`]).length;
+            const progress = total === 0 ? 0 : Math.round((checkedCount / total) * 100);
+
+            return `
+                <div class="bg-zen-card rounded-2xl shadow-sm border border-zen-border overflow-hidden">
+                    <div class="bg-zen-100 p-4 border-b border-zen-border">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-zen-text flex items-center gap-2">
+                                <i class="fa-solid ${icon} text-sakura-main"></i> ${title}
+                            </h3>
+                            <span class="text-xs text-zen-primary font-bold">${progress}%</span>
+                        </div>
+                        <div class="w-full bg-white rounded-full h-1.5">
+                            <div class="bg-sakura-main h-1.5 rounded-full transition-all duration-500" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="mt-2 flex gap-2">
+                             <input type="text" id="new-${listKey}" placeholder="新增項目..." class="input-zen text-xs flex-1 py-1">
+                             <button onclick="addItem('${listKey}')" class="bg-zen-primary text-white text-xs px-3 rounded-lg"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="p-2">
+                        ${list.map(item => {
+                            const isChecked = checklistState[`${listKey}-${item}`] ? 'checked' : '';
+                            return `
+                                <label class="checkbox-wrapper flex items-center p-3 cursor-pointer hover:bg-zen-bg rounded-lg transition-colors">
+                                    <input type="checkbox" class="hidden" onchange="toggleCheck('${listKey}', '${item}')" ${isChecked}>
+                                    <div class="w-5 h-5 border-2 border-zen-border rounded flex items-center justify-center mr-3 bg-white transition-colors">
+                                        <svg class="w-3 h-3 text-white hidden pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <span class="text-sm text-zen-text ${isChecked ? 'line-through text-zen-sub opacity-50' : ''}">${item}</span>
+                                    <button onclick="deleteItem('${listKey}', '${item}')" class="ml-auto text-gray-200 hover:text-red-400 px-2"><i class="fa-solid fa-xmark"></i></button>
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 4. INFO
+        function renderInfo(container) {
+            let html = `
+                <div class="space-y-4">
+                    <div class="bg-zen-card p-5 rounded-2xl shadow-sm border border-zen-border">
+                        <h3 class="text-zen-text font-bold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-plane text-sakura-main"></i> 航班資訊
+                        </h3>
+                        
+                        <div class="flex items-center justify-between mb-4 pb-4 border-b border-zen-border">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-zen-text">TPE</div>
+                                <div class="text-[10px] text-zen-sub">台北</div>
+                            </div>
+                            <div class="flex-1 px-4 text-center">
+                                <div class="text-xs text-zen-primary font-bold">BR158</div>
+                                <div class="h-px bg-zen-primary w-full my-1 relative">
+                                    <i class="fa-solid fa-plane absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zen-primary bg-white px-1 text-xs"></i>
+                                </div>
+                                <div class="text-[10px] text-zen-sub">12/23 06:35</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-zen-text">KMQ</div>
+                                <div class="text-[10px] text-zen-sub">小松</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-zen-text">KMQ</div>
+                                <div class="text-[10px] text-zen-sub">小松</div>
+                            </div>
+                            <div class="flex-1 px-4 text-center">
+                                <div class="text-xs text-zen-primary font-bold">BR157</div>
+                                <div class="h-px bg-zen-primary w-full my-1 relative">
+                                    <i class="fa-solid fa-plane absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zen-primary bg-white px-1 text-xs transform rotate-180"></i>
+                                </div>
+                                <div class="text-[10px] text-zen-sub">12/27 11:45</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-zen-text">TPE</div>
+                                <div class="text-[10px] text-zen-sub">台北</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-zen-card p-5 rounded-2xl shadow-sm border border-zen-border">
+                         <h3 class="text-zen-text font-bold mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-phone text-sakura-main"></i> 緊急聯絡
+                        </h3>
+                        <div class="space-y-3">
+                            ${infoData.contacts.map(c => `
+                                <div class="flex justify-between items-center bg-zen-bg p-3 rounded-lg">
+                                    <span class="text-sm font-bold text-zen-text">${c.name}</span>
+                                    <a href="tel:${c.tel.replace(/[- ]/g, '')}" class="text-zen-primary font-bold text-sm"><i class="fa-solid fa-phone-flip mr-1"></i> ${c.tel}</a>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="bg-sakura-light/30 p-5 rounded-2xl shadow-sm border border-sakura-light">
+                        <h3 class="text-sakura-dark font-bold mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i> 注意事項
+                        </h3>
+                        <ul class="list-disc list-inside text-sm text-zen-text space-y-2 leading-relaxed">
+                            ${infoData.notices.map(n => `<li>${n}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // 5. SOUVENIR (NEW FEATURE)
+        function renderSouvenir(container) {
+            tempSouvenirImage = null; // Reset temp image
+            const total = souvenirs.length;
+            const checked = souvenirs.filter(s => s.checked).length;
+            const progress = total === 0 ? 0 : Math.round((checked / total) * 100);
+
+            let html = `
+                <div class="space-y-6 pb-20">
+                    
+                    <div class="bg-zen-card p-5 rounded-2xl shadow-sm border border-zen-border">
+                        <h3 class="text-zen-text font-bold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-gift text-sakura-main"></i> 新增伴手禮
+                        </h3>
+                        <div class="space-y-3">
+                            <input type="text" id="souvenirName" placeholder="伴手禮名稱 (如: 富士山餅乾)" class="input-zen w-full">
+                            <input type="text" id="souvenirShop" placeholder="店名/地點 (如: 車站2F)" class="input-zen w-full">
+                            
+                            <div class="flex items-center gap-2">
+                                <label class="flex-1 bg-zen-bg border border-dashed border-zen-primary text-zen-primary rounded-xl py-3 text-center cursor-pointer hover:bg-zen-primary hover:text-white transition-colors">
+                                    <i class="fa-solid fa-camera mr-2"></i> 拍照 / 上傳圖片
+                                    <input type="file" id="souvenirImgInput" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+                                </label>
+                            </div>
+                            <div id="imagePreviewContainer" class="hidden">
+                                <img id="imagePreview" src="" class="w-full h-32 object-cover rounded-xl border border-zen-border">
+                            </div>
+
+                            <button onclick="addSouvenir()" class="btn-zen w-full shadow-lg shadow-orange-100">加入清單</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-zen-card rounded-2xl shadow-sm border border-zen-border overflow-hidden">
+                        <div class="bg-zen-100 p-4 border-b border-zen-border flex justify-between items-center">
+                            <span class="font-bold text-zen-text">購買清單</span>
+                            <span class="text-xs font-bold text-zen-primary bg-white px-2 py-1 rounded-full border border-zen-border">
+                                完成度 ${progress}%
+                            </span>
+                        </div>
+                        
+                        <div class="space-y-0">
+                            ${souvenirs.length === 0 ? '<div class="p-8 text-center text-zen-sub text-sm">還沒有要買的東西嗎？</div>' : ''}
+                            ${souvenirs.map(item => `
+                                <div class="p-4 border-b border-zen-bg last:border-0 flex gap-4 items-start bg-white transition-colors ${item.checked ? 'bg-gray-50' : ''}">
+                                    <div class="checkbox-wrapper mt-1">
+                                        <label class="cursor-pointer relative">
+                                            <input type="checkbox" class="hidden" onchange="toggleSouvenir('${item.id}')" ${item.checked ? 'checked' : ''}>
+                                            <div class="w-6 h-6 border-2 border-zen-border rounded-md flex items-center justify-center bg-white">
+                                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-zen-text ${item.checked ? 'line-through text-zen-sub opacity-50' : ''}">${item.name}</h4>
+                                        <div class="text-xs text-zen-sub flex items-center gap-1 mt-1">
+                                            <i class="fa-solid fa-store text-sakura-main"></i> ${item.shop || '未指定地點'}
+                                        </div>
+                                        ${item.image ? `<img src="${item.image}" class="mt-2 w-24 h-24 object-cover rounded-lg border border-zen-border shadow-sm">` : ''}
+                                    </div>
+
+                                    <button onclick="deleteSouvenir('${item.id}')" class="text-gray-200 hover:text-red-400 p-2">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // --- Logic Handlers ---
+
+        function saveTime(key, value) {
+            meetingTimes[key] = value;
+            localStorage.setItem('travel_times', JSON.stringify(meetingTimes));
+        }
+
+        function saveRate(val) {
+            exchangeRate = parseFloat(val);
+            localStorage.setItem('travel_rate', exchangeRate);
+            renderView();
+        }
+
+        function calculate() {
+            const input = document.getElementById('calcInput').value;
+            const yenDisplay = document.getElementById('calcResultYen');
+            const twdDisplay = document.getElementById('calcResultTwd');
+            
+            try {
+                if(/^[0-9+\-*/().\s]*$/.test(input)) {
+                    const result = eval(input);
+                    yenDisplay.innerText = Math.round(result).toLocaleString();
+                    twdDisplay.innerText = Math.round(result * exchangeRate).toLocaleString();
+                } else {
+                    yenDisplay.innerText = "Error";
+                }
+            } catch (e) {
+                yenDisplay.innerText = "Error";
+            }
+        }
+
+        function addExpense() {
+            const name = document.getElementById('expenseName').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            
+            if(name && amount) {
+                expenses.push({
+                    name, 
+                    amount, 
+                    date: new Date().toLocaleDateString('zh-TW', {month: 'numeric', day: 'numeric'})
+                });
+                localStorage.setItem('travel_expenses', JSON.stringify(expenses));
+                renderView();
+            }
+        }
+
+        function removeExpense(index) {
+            if(confirm('確定刪除這筆紀錄嗎？')) {
+                expenses.splice(index, 1);
+                localStorage.setItem('travel_expenses', JSON.stringify(expenses));
+                renderView();
+            }
+        }
+
+        function toggleCheck(listKey, item) {
+            const key = `${listKey}-${item}`;
+            checklistState[key] = !checklistState[key];
+            localStorage.setItem('travel_checklist', JSON.stringify(checklistState));
+            renderView();
+        }
+        
+        function addItem(listKey) {
+            const input = document.getElementById(`new-${listKey}`);
+            const val = input.value.trim();
+            if(val) {
+                userLists[listKey].push(val);
+                localStorage.setItem('travel_custom_lists', JSON.stringify(userLists));
+                renderView();
+            }
+        }
+
+        function deleteItem(listKey, item) {
+            if(confirm(`確定刪除「${item}」嗎？`)) {
+                userLists[listKey] = userLists[listKey].filter(i => i !== item);
+                localStorage.setItem('travel_custom_lists', JSON.stringify(userLists));
+                renderView();
+            }
+        }
+
+        // --- NEW HANDLERS FOR SOUVENIR ---
+
+        // Handle Image Compression and Preview
+        function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Canvas Compression Logic
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Resize to max width 300px to save space
+                        const maxWidth = 300;
+                        const scale = maxWidth / img.width;
+                        const width = maxWidth;
+                        const height = img.height * scale;
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        // Draw and Compress
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert to Base64 (JPEG, Quality 0.6)
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                        
+                        // Show Preview
+                        const preview = document.getElementById('imagePreview');
+                        const container = document.getElementById('imagePreviewContainer');
+                        preview.src = dataUrl;
+                        container.classList.remove('hidden');
+                        
+                        // Save to temp state
+                        tempSouvenirImage = dataUrl;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addSouvenir() {
+            const name = document.getElementById('souvenirName').value;
+            const shop = document.getElementById('souvenirShop').value;
+
+            if (!name) {
+                alert('請輸入伴手禮名稱');
+                return;
+            }
+
+            try {
+                souvenirs.push({
+                    id: Date.now().toString(),
+                    name: name,
+                    shop: shop,
+                    image: tempSouvenirImage, // Saves Base64 string
+                    checked: false
+                });
+                
+                localStorage.setItem('travel_souvenirs', JSON.stringify(souvenirs));
+                renderView();
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    alert('儲存空間已滿！建議刪除一些舊的伴手禮照片。');
+                } else {
+                    alert('發生錯誤，無法儲存。');
+                }
+            }
+        }
+
+        function toggleSouvenir(id) {
+            const item = souvenirs.find(s => s.id === id);
+            if(item) {
+                item.checked = !item.checked;
+                localStorage.setItem('travel_souvenirs', JSON.stringify(souvenirs));
+                renderView();
+            }
+        }
+
+        function deleteSouvenir(id) {
+            if(confirm('確定刪除這個伴手禮嗎？')) {
+                souvenirs = souvenirs.filter(s => s.id !== id);
+                localStorage.setItem('travel_souvenirs', JSON.stringify(souvenirs));
+                renderView();
+            }
+        }
+
+    </script>
+</body>
+</html>
